@@ -45,10 +45,18 @@ In the desktop GUI, open **Remote Preview**, keep `http://127.0.0.1:5188` as the
 
 ## Windows console
 
-Download `Rowen-Console-win-x64-<version>.zip` from the [Releases page](https://github.com/stoxello/rowen-releases/releases), extract all files, and run `Rowen.Console.exe` in PowerShell. Run `Rowen.Console.exe help` to see the commands or `Rowen.Console.exe setup` to configure it. This is the same Console entry point packaged for Windows.
+Open **PowerShell as Administrator** and run:
+
+```powershell
+irm https://raw.githubusercontent.com/stoxello/rowen-releases/main/install-console.ps1 | iex
+```
+
+The installer verifies the Windows x64 Console ZIP against `SHA256SUMS.txt`, installs it in `%ProgramFiles%\Rowen\Console`, creates a configuration and control token on first install, and starts the automatic `RowenConsole` Windows service under LocalService. Service data is stored under `%ProgramData%\Rowen`. Re-running the installer updates the Console while preserving its configuration and data. Check it with `Get-Service RowenConsole` and run diagnostics with `& "$env:ProgramFiles\Rowen\Console\Rowen.Console.exe" doctor`. The installer requires a release built with Windows service support; it reports an error if the newest published Console build predates that support.
+
+For a manual install, download `Rowen-Console-win-x64-<version>.zip` from the [Releases page](https://github.com/stoxello/rowen-releases/releases), extract all files, and run `Rowen.Console.exe` in PowerShell. This does not register a Windows service.
 
 ## Updating and verification
 
-Run the Ubuntu one-command installer again to install the newest published version, move the `~/.local/bin/rowen` link to it, and restart the service. Existing configuration and data live outside the application folder and remain in place. For manual downloads, compare the ZIP's SHA-256 hash with `SHA256SUMS.txt` in the same release before extracting it.
+Run the Ubuntu or Windows installer again to install the newest published version and restart its service. Existing configuration and data remain in place. For manual downloads, compare the ZIP's SHA-256 hash with `SHA256SUMS.txt` in the same release before extracting it.
 
 Source code, build instructions, and current feature status are in [stoxello/rowen](https://github.com/stoxello/rowen).
