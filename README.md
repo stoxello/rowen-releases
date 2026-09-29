@@ -18,25 +18,22 @@ On an Ubuntu x64 machine, run:
 curl -fsSL https://raw.githubusercontent.com/stoxello/rowen-releases/main/install-console.sh | bash
 ```
 
-The installer needs `curl`, `python3`, and `sha256sum`. It selects the newest published release containing an Ubuntu x64 console ZIP, checks its SHA-256 hash against that release's `SHA256SUMS.txt`, and installs the self-contained app to `~/.local/share/rowen/versions/<version>`. It links `~/.local/bin/rowen` to the installed version. It does not need `sudo` or a separate .NET runtime. If `rowen` is not yet on your `PATH`, use `~/.local/bin/rowen` directly or start a new login session.
+The installer needs `curl`, `python3`, `sha256sum`, and a working systemd user session. It selects the newest published release containing an Ubuntu x64 console ZIP, checks its SHA-256 hash against that release's `SHA256SUMS.txt`, and installs the self-contained app to `~/.local/share/rowen/versions/<version>`. It links `~/.local/bin/rowen` to the installed version, creates a default configuration and control token when needed, and enables and starts `rowen.service` for your user. Run the installer as your normal login user, without `sudo`. It does not need a separate .NET runtime. If `rowen` is not yet on your `PATH`, use `~/.local/bin/rowen` directly or start a new login session.
 
-After installation, configure and check the instance:
+After installation, check the instance and service:
 
 ```bash
-~/.local/bin/rowen setup
 ~/.local/bin/rowen doctor
-~/.local/bin/rowen
+systemctl --user status rowen.service
 ```
 
-Running `rowen` without arguments opens an interactive help menu. Useful commands include `rowen help`, `rowen status`, `rowen models list`, `rowen data summary BTC-USD Minute5`, and `rowen data sync BTC-USD Minute5 2026-01-01T00:00:00Z 2026-01-02T00:00:00Z`. `rowen help data` explains the data commands. The current Console build supports setup, diagnostics, status, model listing, historical market data, and the control server. Training, backtesting, paper controls, and Robinhood broker commands are not yet available on Ubuntu.
+The service runs while your user manager is active. For startup at boot and operation after logout, run `sudo loginctl enable-linger "$USER"` if the installer prints that step. You can change the default configuration with `~/.local/bin/rowen setup`; restart the service afterward with `systemctl --user restart rowen.service`.
+
+Running `rowen` without arguments opens an interactive help menu. Useful commands include `rowen help`, `rowen status`, `rowen models list`, `rowen data summary BTC-USD Minute5`, and `rowen data sync BTC-USD Minute5 2026-01-01T00:00:00Z 2026-01-02T00:00:00Z`. `rowen help data` explains the data commands. Console also supports training, backtesting, paper sessions, and read-only Robinhood commands. Run `rowen help paper` for paper session controls.
 
 ### Connect the Windows GUI to the Ubuntu Console preview
 
-On Ubuntu, `rowen setup` creates a control token. Run `~/.local/bin/rowen remote token` if you need to see it again, then start the control server:
-
-```bash
-~/.local/bin/rowen serve
-```
+The installer creates a control token on first install. Run `~/.local/bin/rowen remote token` if you need to see it again. The control server is already running through `rowen.service`.
 
 The server listens on Ubuntu's `127.0.0.1:5188`. On Windows, open a separate terminal and forward the port over SSH, replacing the login and host:
 
@@ -52,6 +49,6 @@ Download `Rowen-Console-win-x64-<version>.zip` from the [Releases page](https://
 
 ## Updating and verification
 
-Run the Ubuntu one-command installer again to install the newest published version and move the `~/.local/bin/rowen` link to it. Existing configuration and data live outside the application folder and remain in place. For manual downloads, compare the ZIP's SHA-256 hash with `SHA256SUMS.txt` in the same release before extracting it.
+Run the Ubuntu one-command installer again to install the newest published version, move the `~/.local/bin/rowen` link to it, and restart the service. Existing configuration and data live outside the application folder and remain in place. For manual downloads, compare the ZIP's SHA-256 hash with `SHA256SUMS.txt` in the same release before extracting it.
 
 Source code, build instructions, and current feature status are in [stoxello/rowen](https://github.com/stoxello/rowen).
